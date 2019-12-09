@@ -11,21 +11,20 @@ const easeOutQuad = (t, b, c, d) => {
 export class WaterTexture {
   constructor(options) {
     this.size = 64;
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+    this.points = [];
+    this.radius = this.size * 0.1;
     this.width = this.height = this.size;
-
     this.maxAge = 64;
-    this.radius = 0.1 * this.size;
-    // this.radius = 0.15 * 1000;
-
-    this.speed = 1 / this.maxAge;
-    // this.speed = 0.01;
-
-    this.trail = [];
     this.last = null;
 
+    if (options.debug) {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      this.radius = this.width * 0.1;
+    }
+
     this.initTexture();
+    if (options.debug) document.body.append(this.canvas);
   }
   // Initialize our canvas
   initTexture() {
