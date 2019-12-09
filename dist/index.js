@@ -50322,6 +50322,16 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 
+
+var easeOutSine = function easeOutSine(t, b, c, d) {
+  return c * Math.sin(t / d * (Math.PI / 2)) + b;
+};
+
+var easeOutQuad = function easeOutQuad(t, b, c, d) {
+  t /= d;
+  return -c * t * (t - 2) + b;
+};
+
 var WaterTexture =
 /*#__PURE__*/
 function () {
@@ -50354,8 +50364,8 @@ function () {
       this.canvas.width = this.width;
       this.canvas.height = this.height;
       this.ctx = this.canvas.getContext("2d");
-      this.clear();
       this.texture = new three__WEBPACK_IMPORTED_MODULE_0__["Texture"](this.canvas);
+      this.clear();
     }
   }, {
     key: "clear",
@@ -50430,8 +50440,19 @@ function () {
       var radius = this.radius;
       var ctx = this.ctx;
       var intensity = 1;
-      intensity = 1 - point.age / this.maxAge;
-      var color = "255,255,255";
+
+      if (point.age < this.maxAge * 0.3) {
+        intensity = easeOutSine(point.age / (this.maxAge * 0.3), 0, 1, 1);
+      } else {
+        intensity = easeOutQuad(1 - (point.age - this.maxAge * 0.3) / (this.maxAge * 0.7), 0, 1, 1);
+      }
+
+      intensity *= point.force;
+      var red = (point.vx + 1) / 2 * 255;
+      var green = (point.vy + 1) / 2 * 255; // B = Unit vector
+
+      var blue = intensity * 255;
+      var color = "".concat(red, ", ").concat(green, ", ").concat(blue);
       var offset = this.width * 5; // 1. Give the shadow a high offset.
 
       ctx.shadowOffsetX = offset;
