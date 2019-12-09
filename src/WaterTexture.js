@@ -1,22 +1,31 @@
-import * as THREE from 'three';
+import * as THREE from "three";
+const easeOutSine = (t, b, c, d) => {
+  return c * Math.sin((t / d) * (Math.PI / 2)) + b;
+};
+
+const easeOutQuad = (t, b, c, d) => {
+  t /= d;
+  return -c * t * (t - 2) + b;
+};
 
 export class WaterTexture {
   constructor(options) {
     this.size = 64;
-    this.points = [];
-    this.radius = this.size * 0.1;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
     this.width = this.height = this.size;
+
     this.maxAge = 64;
+    this.radius = 0.1 * this.size;
+    // this.radius = 0.15 * 1000;
+
+    this.speed = 1 / this.maxAge;
+    // this.speed = 0.01;
+
+    this.trail = [];
     this.last = null;
 
-    if (options.debug) {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.radius = this.width * 0.1;
-    }
-
     this.initTexture();
-    if (options.debug) document.body.append(this.canvas);
   }
   // Initialize our canvas
   initTexture() {
@@ -25,8 +34,8 @@ export class WaterTexture {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.ctx = this.canvas.getContext("2d");
-    this.clear();
     this.texture = new THREE.Texture(this.canvas);
+    this.clear();
   }
   clear() {
     this.ctx.fillStyle = "black";
@@ -84,9 +93,23 @@ export class WaterTexture {
     const ctx = this.ctx;
 
     let intensity = 1;
-    intensity = 1 - point.age / this.maxAge;
+    if (point.age < this.maxAge * 0.3) {
+      intensity = easeOutSine(point.age / (this.maxAge * 0.3), 0, 1, 1);
+    } else {
+      intensity = easeOutQuad(
+        1 - (point.age - this.maxAge * 0.3) / (this.maxAge * 0.7),
+        0,
+        1,
+        1
+      );
+    }
+    intensity *= point.force;
 
-    let color = "255,255,255";
+    let red = ((point.vx + 1) / 2) * 255;
+    let green = ((point.vy + 1) / 2) * 255;
+    // B = Unit vector
+    let blue = intensity * 255;
+    let color = `${red}, ${green}, ${blue}`;
 
     let offset = this.width * 5;
     // 1. Give the shadow a high offset.
