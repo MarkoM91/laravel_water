@@ -50344,15 +50344,11 @@ function () {
     this.width = this.height = this.size;
     this.maxAge = 64;
     this.last = null;
-
-    if (options.debug) {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.radius = this.width * 0.1;
-    }
-
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.radius = this.width * 0.1;
     this.initTexture();
-    if (options.debug) document.body.append(this.canvas);
+    document.body.append(this.canvas);
   } // Initialize our canvas
 
 
@@ -50481,7 +50477,8 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _WaterTexture__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WaterTexture */ "./src/WaterTexture.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _WaterTexture__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WaterTexture */ "./src/WaterTexture.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -50489,7 +50486,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 
-console.clear();
+
 
 var App =
 /*#__PURE__*/
@@ -50497,18 +50494,37 @@ function () {
   function App() {
     _classCallCheck(this, App);
 
-    this.waterTexture = new _WaterTexture__WEBPACK_IMPORTED_MODULE_0__["WaterTexture"]({
-      debug: true
+    this.waterTexture = new _WaterTexture__WEBPACK_IMPORTED_MODULE_1__["WaterTexture"]({
+      debug: false
     });
+    this.renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({
+      antialias: false
+    });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.append(this.renderer.domElement);
+    this.camera = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](45, window.innerWidth / window.innerHeight, 0.1, 10000);
+    this.camera.position.z = 50;
+    this.touchTexture = new _WaterTexture__WEBPACK_IMPORTED_MODULE_1__["WaterTexture"]();
+    this.scene = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]();
     this.tick = this.tick.bind(this);
-    console.log('ok');
+    this.onMouseMove = this.onMouseMove.bind(this);
     this.init();
   }
 
   _createClass(App, [{
+    key: "addPlane",
+    value: function addPlane() {
+      var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["PlaneBufferGeometry"](5, 5, 1, 1);
+      var material = new three__WEBPACK_IMPORTED_MODULE_0__["MeshNormalMaterial"]();
+      var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, material);
+      window.addEventListener("mousemove", this.onMouseMove);
+      this.scene.add(mesh);
+    }
+  }, {
     key: "init",
     value: function init() {
-      window.addEventListener('mousemove', this.onMouseMove.bind(this));
+      this.addPlane();
       this.tick();
     }
   }, {
@@ -50521,8 +50537,14 @@ function () {
       this.waterTexture.addPoint(point);
     }
   }, {
+    key: "render",
+    value: function render() {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }, {
     key: "tick",
     value: function tick() {
+      this.render();
       this.waterTexture.update();
       requestAnimationFrame(this.tick);
     }
@@ -50531,7 +50553,6 @@ function () {
   return App;
 }();
 
-console.log('ok');
 var myApp = new App();
 
 /***/ }),

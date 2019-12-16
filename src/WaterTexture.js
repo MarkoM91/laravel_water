@@ -17,14 +17,12 @@ export class WaterTexture {
     this.maxAge = 64;
     this.last = null;
 
-    if (options.debug) {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.radius = this.width * 0.1;
-    }
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.radius = this.width * 0.1;
 
     this.initTexture();
-    if (options.debug) document.body.append(this.canvas);
+    document.body.append(this.canvas);
   }
   // Initialize our canvas
   initTexture() {
